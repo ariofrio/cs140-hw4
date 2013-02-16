@@ -15,8 +15,9 @@ int rec_cilkified(int* a, int* b, unsigned int n)
     }
     return ret;
   } else {
-    int left = cilk_spawn rec_cilkified(a, b, n/2);
-    int right = cilk_spawn rec_cilkified(
+    int left, right;
+    left = cilk_spawn rec_cilkified(a, b, n/2);
+    right = cilk_spawn rec_cilkified(
                         a+n/2, b+n/2, n-n/2);
     return left + right;
   }
@@ -39,6 +40,7 @@ int loop_cilkified(int* a, int* b, unsigned int n)
   for(int i = 0; i < iterations; i++) {
     ret += rets[i];
   }
+  free(rets);
 	return ret;
 }
 
