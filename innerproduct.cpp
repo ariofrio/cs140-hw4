@@ -60,8 +60,8 @@ void fill_arrays(int *a, int *b, int n)
 	int i;
 	for(i = 0 ; i < n; i++)
 	{
-		a[i] = 1;	
-		b[i] = 3;
+		a[i] = i;	
+		b[i] = 10*n+i;
 	}
 }
 
