@@ -5,6 +5,7 @@ Team member 2 : John Doe
 */
 
 #include<cilk.h>
+#include<cilkview.h>
 #include<iostream>
 #include<string.h>
 #include<stdio.h>
@@ -20,6 +21,8 @@ using namespace std;
 
 // String to display results
 char result[][15] = {"matched","did not match"};
+
+cilk::cilkview cv;
 
 int cilk_main(int argc, char **argv)
 {
@@ -38,10 +41,34 @@ int cilk_main(int argc, char **argv)
 	// Initialize arrays
 	fill_arrays(a,b,n);
 	
-	// Compute inner product for each method
-	rec_result = rec_cilkified(a,b,n);
-	loop_result = loop_cilkified(a,b,n);
-	hyper_result = hyperobject_cilkified(a,b,n);
+  // Compute inner product for each method
+  int iterations = 100000000/n + 1;
+  cv.start();
+  for(int i=0; i<iterations; i++) {
+    rec_result = rec_cilkified(a,b,n);
+  }
+  cv.stop();
+  printf("recursive: %.2f us\n",
+      cv.accumulated_milliseconds()*1000.0/iterations);
+  cv.reset();
+
+  cv.start();
+  for(int i=0; i<iterations; i++) {
+    loop_result = loop_cilkified(a,b,n);
+  }
+  cv.stop();
+  printf("loop: %.2f us\n",
+      cv.accumulated_milliseconds()*1000.0/iterations);
+  cv.reset();
+
+  cv.start();
+  for(int i=0; i<iterations; i++) {
+    hyper_result = hyperobject_cilkified(a,b,n);
+  }
+  cv.stop();
+  printf("hyperobject: %.2f us\n",
+      cv.accumulated_milliseconds()*1000.0/iterations);
+  cv.reset();
 	
 	// Compute inner product using library function	
 	ref_result = std::inner_product(a,a+n,b,0);
