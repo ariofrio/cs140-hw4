@@ -1,5 +1,6 @@
 #include "functions.h"
 #include <stdio.h>
+#include<stdlib.h>
 #include <reducer_opadd.h>
 
 #define COARSENESS 4
@@ -23,17 +24,22 @@ int rec_cilkified(int* a, int* b, unsigned int n)
 
 int loop_cilkified(int* a, int* b, unsigned int n)
 {
-  cilk::reducer_opadd<int> ret;
-  cilk_for(int i = 0;
-      i < (n+COARSENESS-1)/COARSENESS; i++) {
+  int iterations = (n+COARSENESS-1)/COARSENESS;
+  int* rets = (int *)malloc(sizeof(int)*iterations);
+  cilk_for(int i = 0; i < iterations; i++) {
     int size = n - i*COARSENESS;
     if(size > COARSENESS) size = COARSENESS;
+    rets[i] = 0;
     for(int j = 0; j < size; j++) {
       int index = i*COARSENESS + j;
-      ret += a[index] * b[index];
+      rets[i] += a[index] * b[index];
     }
   }
-	return ret.get_value();
+  int ret = 0;
+  for(int i = 0; i < iterations; i++) {
+    ret += rets[i];
+  }
+	return ret;
 }
 
 int hyperobject_cilkified(int *a,int *b,unsigned int n)
